@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Microsoft.DotNet.Cli.Utils
         private readonly Process _process;
 
         private StreamForwarder _stdOut;
-        
+
         private StreamForwarder _stdErr;
 
         private bool _running = false;
@@ -28,7 +29,6 @@ namespace Microsoft.DotNet.Cli.Utils
 
         public CommandResult Execute()
         {
-
             Reporter.Verbose.WriteLine(string.Format(
                 LocalizableStrings.RunningFileNameArguments,
                 _process.StartInfo.FileName,
@@ -47,18 +47,22 @@ namespace Microsoft.DotNet.Cli.Utils
 #endif
             using (PerfTrace.Current.CaptureTiming($"{Path.GetFileNameWithoutExtension(_process.StartInfo.FileName)} {_process.StartInfo.Arguments}"))
             {
-                _process.Start();
+                using (var reaper = new ProcessReaper(_process))
+                {
+                    _process.Start();
+                    reaper.NotifyProcessStarted();
 
-                Reporter.Verbose.WriteLine(string.Format(
-                    LocalizableStrings.ProcessId,
-                    _process.Id));
+                    Reporter.Verbose.WriteLine(string.Format(
+                        LocalizableStrings.ProcessId,
+                        _process.Id));
 
-                var taskOut = _stdOut?.BeginRead(_process.StandardOutput);
-                var taskErr = _stdErr?.BeginRead(_process.StandardError);
-                _process.WaitForExit();
+                    var taskOut = _stdOut?.BeginRead(_process.StandardOutput);
+                    var taskErr = _stdErr?.BeginRead(_process.StandardError);
+                    _process.WaitForExit();
 
-                taskOut?.Wait();
-                taskErr?.Wait();
+                    taskOut?.Wait();
+                    taskErr?.Wait();
+                }
             }
 
             var exitCode = _process.ExitCode;
@@ -94,11 +98,7 @@ namespace Microsoft.DotNet.Cli.Utils
 
         public ICommand EnvironmentVariable(string name, string value)
         {
-#if NET451
-            _process.StartInfo.EnvironmentVariables[name] = value;
-#else
             _process.StartInfo.Environment[name] = value;
-#endif
             return this;
         }
 

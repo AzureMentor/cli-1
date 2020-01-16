@@ -5,9 +5,9 @@ using Microsoft.DotNet.Tools.Add;
 using Microsoft.DotNet.Tools.Build;
 using Microsoft.DotNet.Tools.BuildServer;
 using Microsoft.DotNet.Tools.Clean;
+using Microsoft.DotNet.Tools.Fsi;
 using Microsoft.DotNet.Tools.Help;
 using Microsoft.DotNet.Tools.List;
-using Microsoft.DotNet.Tools.Migrate;
 using Microsoft.DotNet.Tools.MSBuild;
 using Microsoft.DotNet.Tools.New;
 using Microsoft.DotNet.Tools.NuGet;
@@ -47,6 +47,12 @@ namespace Microsoft.DotNet.Cli
                 // aka.ms target: https://docs.microsoft.com/dotnet/articles/core/tools/dotnet-clean
                 DocLink = "https://aka.ms/dotnet-clean"
             },
+            ["fsi"] = new BuiltInCommandMetadata
+            {
+                Command = FsiCommand.Run,
+                // aka.ms target: https://docs.microsoft.com/dotnet/articles/core/tools/dotnet-fsi
+                DocLink = "https://aka.ms/dotnet-fsi"
+            },
             ["help"] = new BuiltInCommandMetadata
             {
                 Command = HelpCommand.Run,
@@ -58,13 +64,6 @@ namespace Microsoft.DotNet.Cli
                 Command = ListCommand.Run,
                 // aka.ms target: https://docs.microsoft.com/dotnet/articles/core/tools/dotnet-list-reference
                 DocLink = "https://aka.ms/dotnet-list"
-            },
-            ["migrate"] = new BuiltInCommandMetadata
-            {
-                Command = MigrateCommandCompose.Run,
-                // aka.ms target: https://docs.microsoft.com/dotnet/articles/core/tools/dotnet-migrate
-                DocLink = "https://aka.ms/dotnet-migrate"
-
             },
             ["msbuild"] = new BuiltInCommandMetadata
             {

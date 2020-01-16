@@ -1,7 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en" target-language="it" original="../LocalizableStrings.resx">
     <body>
+      <trans-unit id="RollForwardDefinition">
+        <source>Roll forward to framework version  (LatestPatch, Minor, LatestMinor, Major, LatestMajor, Disable).</source>
+        <target state="translated">Esegue il roll forward alla versione del framework (LatestPatch, Minor, LatestMinor, Major, LatestMajor, Disable).</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Usage">
         <source>Usage</source>
         <target state="translated">Sintassi</target>
@@ -92,11 +97,6 @@
         <target state="translated">Crea un pacchetto NuGet.</target>
         <note />
       </trans-unit>
-      <trans-unit id="MigrateDefinition">
-        <source>Migrate a project.json project to an MSBuild project.</source>
-        <target state="translated">Esegue la migrazione di un progetto project.json in un progetto MSBuild.</target>
-        <note />
-      </trans-unit>
       <trans-unit id="ProjectModificationCommands">
         <source>Project modification commands</source>
         <target state="translated">Comandi di modifica del progetto</target>
@@ -153,7 +153,7 @@
         <note />
       </trans-unit>
       <trans-unit id="CommandDoesNotExist">
-        <source>Specified command '{0}' is not a valid SDK command. Please specify a valid SDK command. For more information, run dotnet help.</source>
+        <source>Specified command '{0}' is not a valid SDK command. Specify a valid SDK command. For more information, run dotnet help.</source>
         <target state="translated">Il comando specificato '{0}' non è un comando valido dell'SDK. Specificare un comando valido dell'SDK. Per altre informazioni, eseguire dotnet help.</target>
         <note />
       </trans-unit>
@@ -212,17 +212,17 @@
         <target state="translated">Per altre informazioni su un comando, eseguire 'dotnet [comando] --help'.</target>
         <note />
       </trans-unit>
-      <trans-unit id="AdditionalprobingpathDefinition">
+      <trans-unit id="AdditionalProbingPathDefinition">
         <source>Path containing probing policy and assemblies to probe for.</source>
         <target state="translated">Percorso che contiene i criteri di esecuzione probe e gli assembly per cui eseguire il probe.</target>
         <note />
       </trans-unit>
-      <trans-unit id="DepsfilDefinition">
+      <trans-unit id="DepsFileDefinition">
         <source>Path to &lt;application&gt;.deps.json file.</source>
         <target state="translated">Percorso del file &lt;applicazione&gt;.deps.json.</target>
         <note />
       </trans-unit>
-      <trans-unit id="RuntimeconfigDefinition">
+      <trans-unit id="RuntimeConfigDefinition">
         <source>Path to &lt;application&gt;.runtimeconfig.json file.</source>
         <target state="translated">Percorso del file &lt;applicazione&gt;.runtimeconfig.json.</target>
         <note />
@@ -230,11 +230,6 @@
       <trans-unit id="FxVersionDefinition">
         <source>Version of the installed Shared Framework to use to run the application.</source>
         <target state="translated">Versione di Shared Framework installata da usare per eseguire l'applicazione.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="RollForwardOnNoCandidateFxDefinition">
-        <source>Roll forward on no candidate shared framework is enabled.</source>
-        <target state="translated">Esegue il roll forward nel caso in cui non è abilitata nessuna versione candidata di Shared Framework.</target>
         <note />
       </trans-unit>
       <trans-unit id="AdditionalDeps">
@@ -260,11 +255,6 @@
       <trans-unit id="DevCertsDefinition">
         <source>Create and manage development certificates.</source>
         <target state="translated">Consente di creare e gestire i certificati di sviluppo.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="EfDefinition">
-        <source>Entity Framework Core command-line tools.</source>
-        <target state="translated">Strumenti da riga di comando di Entity Framework Core.</target>
         <note />
       </trans-unit>
       <trans-unit id="SqlCacheDefinition">
@@ -295,6 +285,11 @@
       <trans-unit id="ExecutionUsageDescription">
         <source>Execute a .NET Core application.</source>
         <target state="translated">Esegue un'applicazione di .NET Core.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="FsiDefinition">
+        <source>Start F# Interactive / execute F# scripts.</source>
+        <target state="translated">Avvia F# Interactive/esegue script F#.</target>
         <note />
       </trans-unit>
     </body>

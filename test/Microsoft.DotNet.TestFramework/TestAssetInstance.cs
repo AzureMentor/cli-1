@@ -121,6 +121,7 @@ namespace Microsoft.DotNet.TestFramework
               <packageSources>
                 <add key=""dotnet-core"" value=""https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json"" />
                 <add key=""test-packages"" value=""$fullpath$"" />
+                <add key=""nuget.org"" value=""https://api.nuget.org/v3/index.json"" />
                 $externalRestoreSources$
               </packageSources>
             </configuration>";
@@ -170,23 +171,6 @@ namespace Microsoft.DotNet.TestFramework
             }
 
             return this;
-        }
-
-        public TestAssetInstance UseCurrentRuntimeFrameworkVersion()
-        {
-            return WithProjectChanges(project =>
-            {
-                var ns = project.Root.Name.Namespace;
-
-                var propertyGroup = project.Root.Elements(ns + "PropertyGroup").LastOrDefault();
-                if (propertyGroup == null)
-                {
-                    propertyGroup = new XElement(ns + "PropertyGroup");
-                    project.Root.Add(propertyGroup);
-                }
-
-                propertyGroup.Add(new XElement(ns + "RuntimeFrameworkVersion", CurrentRuntimeFrameworkVersion));
-            });
         }
 
         private static string RebasePath(string path, string oldBaseDirectory, string newBaseDirectory)
@@ -294,7 +278,9 @@ namespace Microsoft.DotNet.TestFramework
 
                 Console.WriteLine(commandResult.StdErr);
 
-                string message = string.Format($"TestAsset Restore '{TestAssetInfo.AssetName}'@'{projectFile.FullName}' Failed with {exitCode}");
+                string message = string.Format($"TestAsset Restore '{TestAssetInfo.AssetName}'@'{projectFile.FullName}' Failed with {exitCode}" + Environment.NewLine +
+                    commandResult.StdOut + Environment.NewLine +
+                    commandResult.StdErr);
 
                 throw new Exception(message);
             }

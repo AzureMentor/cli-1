@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en" target-language="ja" original="../LocalizableStrings.resx">
     <body>
@@ -10,6 +10,11 @@
       <trans-unit id="AppDescription">
         <source>Test Driver for the .NET Platform</source>
         <target state="translated">.NET Platform 用テスト ドライバー</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="CmdNoLogo">
+        <source>Run test(s), without displaying Microsoft Testplatform banner</source>
+        <target state="translated">Microsoft Testplatform バナーを表示せずにテストを実行する</target>
         <note />
       </trans-unit>
       <trans-unit id="CmdSettingsFile">
@@ -65,11 +70,11 @@
                                         Log in trx format using a unique file name: --logger trx
                                         Log in trx format using the specified file name: --logger "trx;LogFileName=&lt;TestResults.trx&gt;"
                                         See https://aka.ms/vstest-report for more information on logger arguments.</source>
-        <target state="translated">テスト結果のために使用するロガー。
+        <target state="translated">テスト結果に使用するロガー。
                                         例:
-                                        一意のファイル名を使用して trx 形式でログを記録します: --logger trx
-                                        指定されたファイル名を使用して trx 形式でログを記録します: --logger "trx;LogFileName=&lt;TestResults.trx&gt;"
-                                        ロガーの引数の詳細は、https://aka.ms/vstest-report をご覧ください。</target>
+                                        一意のファイル名を使用する trx 形式のログ: --logger trx
+                                        指定されたファイル名を使用する trx 形式のログ: --logger "trx;LogFileName=&lt;TestResults.trx&gt;"
+                                        ロガーの引数に関する詳細情報は、https://aka.ms/vstest-report を参照してください。</target>
         <note />
       </trans-unit>
       <trans-unit id="CmdOutputDir">
@@ -112,6 +117,11 @@ The specified directory will be created if it does not exist.</source>
       <trans-unit id="CmdPathToResultsDirectory">
         <source>RESULTS_DIR</source>
         <target state="translated">RESULTS_DIR</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="IgnoredArgumentsMessage">
+        <source>The following arguments have been ignored : "{0}"</source>
+        <target state="new">The following arguments have been ignored : "{0}"</target>
         <note />
       </trans-unit>
       <trans-unit id="RunSettingsArgumentsDescription">
@@ -162,7 +172,7 @@ Outputs a 'Sequence.xml' file in the current directory that captures the order o
       </trans-unit>
       <trans-unit id="RuntimeOptionDescription">
         <source>The target runtime to test for.</source>
-        <target state="new">The target runtime to test for.</target>
+        <target state="translated">テスト対象のターゲット ランタイム。</target>
         <note />
       </trans-unit>
     </body>

@@ -16,8 +16,8 @@ namespace Microsoft.DotNet.Cli
                   "test",
                   LocalizableStrings.AppFullName,
                   Accept.ZeroOrMoreArguments()
-                        .With(name: CommonLocalizableStrings.ProjectArgumentName,
-                              description: CommonLocalizableStrings.ProjectArgumentDescription),
+                        .With(name: CommonLocalizableStrings.SolutionOrProjectArgumentName,
+                              description: CommonLocalizableStrings.SolutionOrProjectArgumentDescription),
                   false,
                   CommonOptions.HelpOption(),
                   Create.Option(
@@ -91,7 +91,13 @@ namespace Microsoft.DotNet.Cli
                         LocalizableStrings.CmdBlameDescription,
                         Accept.NoArguments()
                               .ForwardAsSingle(o => "-property:VSTestBlame=true")),
+                  Create.Option(
+                        "--nologo|/nologo",
+                        LocalizableStrings.CmdNoLogo,
+                        Accept.NoArguments()
+                              .ForwardAsSingle(o => "-property:VSTestNoLogo=nologo")),
                   CommonOptions.NoRestoreOption(),
+                  CommonOptions.InteractiveMsBuildForwardOption(),
                   CommonOptions.VerbosityOption());
 
         private static string GetSemiColonEscapedstring(string arg)

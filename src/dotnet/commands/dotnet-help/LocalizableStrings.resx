@@ -180,9 +180,6 @@
   <data name="PackDefinition" xml:space="preserve">
     <value>Create a NuGet package.</value>
   </data>
-  <data name="MigrateDefinition" xml:space="preserve">
-    <value>Migrate a project.json project to an MSBuild project.</value>
-  </data>
   <data name="StoreDefinition" xml:space="preserve">
     <value>Store the specified assemblies in the runtime package store.</value>
   </data>
@@ -217,7 +214,7 @@
     <value>Modify Visual Studio solution files.</value>
   </data>
   <data name="CommandDoesNotExist" xml:space="preserve">
-    <value>Specified command '{0}' is not a valid SDK command. Please specify a valid SDK command. For more information, run dotnet help.</value>
+    <value>Specified command '{0}' is not a valid SDK command. Specify a valid SDK command. For more information, run dotnet help.</value>
   </data>
   <data name="AppFullName" xml:space="preserve">
     <value>.NET CLI help utility</value>
@@ -252,20 +249,20 @@
   <data name="RunDotnetCommandHelpForMore" xml:space="preserve">
     <value>Run 'dotnet [command] --help' for more information on a command.</value>
   </data>
-  <data name="AdditionalprobingpathDefinition" xml:space="preserve">
+  <data name="AdditionalProbingPathDefinition" xml:space="preserve">
     <value>Path containing probing policy and assemblies to probe for.</value>
   </data>
-  <data name="DepsfilDefinition" xml:space="preserve">
+  <data name="DepsFileDefinition" xml:space="preserve">
     <value>Path to &lt;application&gt;.deps.json file.</value>
   </data>
-  <data name="RuntimeconfigDefinition" xml:space="preserve">
+  <data name="RuntimeConfigDefinition" xml:space="preserve">
     <value>Path to &lt;application&gt;.runtimeconfig.json file.</value>
   </data>
   <data name="FxVersionDefinition" xml:space="preserve">
     <value>Version of the installed Shared Framework to use to run the application.</value>
   </data>
-  <data name="RollForwardOnNoCandidateFxDefinition" xml:space="preserve">
-    <value>Roll forward on no candidate shared framework is enabled.</value>
+  <data name="RollForwardDefinition" xml:space="preserve">
+    <value>Roll forward to framework version  (LatestPatch, Minor, LatestMinor, Major, LatestMajor, Disable).</value>
   </data>
   <data name="AdditionalDeps" xml:space="preserve">
     <value>Path to additional deps.json file.</value>
@@ -276,11 +273,11 @@
   <data name="BuildServerDefinition" xml:space="preserve">
     <value>Interact with servers started by a build.</value>
   </data>
+  <data name="FsiDefinition" xml:space="preserve">
+    <value>Start F# Interactive / execute F# scripts.</value>
+  </data>
   <data name="DevCertsDefinition" xml:space="preserve">
     <value>Create and manage development certificates.</value>
-  </data>
-  <data name="EfDefinition" xml:space="preserve">
-    <value>Entity Framework Core command-line tools.</value>
   </data>
   <data name="SqlCacheDefinition" xml:space="preserve">
     <value>SQL Server cache command-line tools.</value>

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.DotNet.Tools;
 using LocalizableStrings = Microsoft.DotNet.Tools.Restore.LocalizableStrings;
@@ -16,8 +17,8 @@ namespace Microsoft.DotNet.Cli
                 "restore",
                 LocalizableStrings.AppFullName,
                 Accept.ZeroOrMoreArguments()
-                      .With(name: CommonLocalizableStrings.ProjectArgumentName,
-                            description: CommonLocalizableStrings.ProjectArgumentDescription),
+                      .With(name: CommonLocalizableStrings.SolutionOrProjectArgumentName,
+                            description: CommonLocalizableStrings.SolutionOrProjectArgumentDescription),
                 FullRestoreOptions());
 
         private static Option[] FullRestoreOptions()
@@ -27,11 +28,7 @@ namespace Microsoft.DotNet.Cli
             return fullRestoreOptions.Concat(
                 new Option[] {
                     CommonOptions.VerbosityOption(),
-                    Create.Option(
-                        "--interactive",
-                        LocalizableStrings.CmdInteractiveRestoreOptionDescription,
-                        Accept.NoArguments()
-                            .ForwardAs("-property:NuGetInteractive=true")),
+                    CommonOptions.InteractiveMsBuildForwardOption(),
                     Create.Option(
                         "--use-lock-file",
                         LocalizableStrings.CmdUseLockFileOptionDescription,

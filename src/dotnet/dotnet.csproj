@@ -32,7 +32,6 @@
     <EmbeddedResource Update="**\dotnet-list-package\*.resx" Namespace="Microsoft.DotNet.Tools.List.PackageReferences" />
     <EmbeddedResource Update="**\dotnet-list-reference\*.resx" Namespace="Microsoft.DotNet.Tools.List.ProjectToProjectReferences" />
     <EmbeddedResource Update="**\dotnet-list\*.resx" Namespace="Microsoft.DotNet.Tools.List" />
-    <EmbeddedResource Update="**\dotnet-migrate\*.resx" Namespace="Microsoft.DotNet.Tools.Migrate" />
     <EmbeddedResource Update="**\dotnet-pack\*.resx" Namespace="Microsoft.DotNet.Tools.Pack" />
     <EmbeddedResource Update="**\dotnet-publish\*.resx" Namespace="Microsoft.DotNet.Tools.Publish" />
     <EmbeddedResource Update="**\dotnet-remove-package\*.resx" Namespace="Microsoft.DotNet.Tools.Remove.PackageReference" />
@@ -48,6 +47,7 @@
     <EmbeddedResource Update="**\dotnet-tool\uninstall\*.resx" Namespace="Microsoft.DotNet.Tools.Tool.Uninstall" />
     <EmbeddedResource Update="**\dotnet-tool\install\*.resx" Namespace="Microsoft.DotNet.Tools.Tool.Install" />
     <EmbeddedResource Update="**\dotnet-tool\update\*.resx" Namespace="Microsoft.DotNet.Tools.Tool.Update" />
+    <EmbeddedResource Update="**\dotnet-tool\common\*.resx" Namespace="Microsoft.DotNet.Tools.Tool.Common" />
     <EmbeddedResource Update="**\dotnet-tool\restore\*.resx" Namespace="Microsoft.DotNet.Tools.Tool.Restore" />
     <EmbeddedResource Update="**\dotnet-tool\run\*.resx" Namespace="Microsoft.DotNet.Tools.Tool.Run" />
     <EmbeddedResource Update="ToolManifest\*.resx" Namespace="Microsoft.DotNet.ToolManifest" />
@@ -59,24 +59,18 @@
     <ProjectReference Include="../Microsoft.DotNet.Cli.Sln.Internal/Microsoft.DotNet.Cli.Sln.Internal.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.0.0" />
-    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
-    <PackageReference Include="System.Diagnostics.TextWriterTraceListener" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
-    <PackageReference Include="System.Private.DataContractSerialization" Version="4.3.0" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="4.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="$(MicrosoftApplicationInsightsPackageVersion)" />
     <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildPackageVersion)" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="$(MicrosoftDotNetPlatformAbstractionsPackageVersion)" />
     <PackageReference Include="Microsoft.DotNet.Cli.CommandLine" Version="$(MicrosoftDotNetCliCommandLinePackageVersion)" />
-    <PackageReference Include="Microsoft.DotNet.Tools.MigrateCommand" Version="$(MicrosoftDotNetToolsMigrateCommandPackageVersion)" />
-    <PackageReference Include="Microsoft.DotNet.ProjectJsonMigration" Version="$(MicrosoftDotNetProjectJsonMigrationPackageVersion)" />
+    <PackageReference Include="Microsoft.NET.HostModel" Version="$(MicrosoftNETHostModelVersion)" />
     <PackageReference Include="Microsoft.TemplateEngine.Abstractions" Version="$(MicrosoftTemplateEngineAbstractionsPackageVersion)" />
     <PackageReference Include="Microsoft.TemplateEngine.Cli" Version="$(MicrosoftTemplateEngineCliPackageVersion)" />
     <PackageReference Include="Microsoft.TemplateEngine.Cli.Localization" Version="$(MicrosoftTemplateEngineCliLocalizationPackageVersion)" />
     <PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="$(MicrosoftTemplateEngineOrchestratorRunnableProjectsPackageVersion)" />
     <PackageReference Include="Microsoft.TemplateEngine.Utils" Version="$(MicrosoftTemplateEngineUtilsPackageVersion)" />
+    <PackageReference Include="Microsoft.TemplateSearch.Common" Version="$(MicrosoftTemplateEngineTemplateSearchCommonVersion)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(IncludeAspNetCoreRuntime)' != 'false' ">
     <PackageReference Include="Microsoft.AspNetCore.DeveloperCertificates.XPlat" Version="$(MicrosoftAspNetCoreDeveloperCertificatesXPlatPackageVersion)" />

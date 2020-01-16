@@ -16,8 +16,8 @@ namespace Microsoft.DotNet.Cli
                 "pack",
                 LocalizableStrings.AppFullName,
                 Accept.ZeroOrMoreArguments()
-                      .With(name: CommonLocalizableStrings.ProjectArgumentName,
-                            description: CommonLocalizableStrings.ProjectArgumentDescription),
+                      .With(name: CommonLocalizableStrings.SolutionOrProjectArgumentName,
+                            description: CommonLocalizableStrings.SolutionOrProjectArgumentDescription),
                 CommonOptions.HelpOption(),
                 Create.Option(
                     "-o|--output",
@@ -43,6 +43,12 @@ namespace Microsoft.DotNet.Cli
                     "-s|--serviceable",
                     LocalizableStrings.CmdServiceableDescription,
                     Accept.NoArguments().ForwardAs("-property:Serviceable=true")),
+                Create.Option(
+                    "--nologo|/nologo",
+                    LocalizableStrings.CmdNoLogo,
+                    Accept.NoArguments()
+                          .ForwardAs("-nologo")),
+                CommonOptions.InteractiveMsBuildForwardOption(),
                 CommonOptions.NoRestoreOption(),
                 CommonOptions.VerbosityOption());
     }

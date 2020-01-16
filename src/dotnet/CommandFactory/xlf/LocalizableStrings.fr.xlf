@@ -176,7 +176,7 @@
       </trans-unit>
       <trans-unit id="NeedRunToolRestore">
         <source>Run "dotnet tool restore" to make the "{0}" command available.</source>
-        <target state="new">Run "dotnet tool restore" to make the "{0}" command available.</target>
+        <target state="translated">Exécutez "dotnet tool restore" pour rendre la commande "{0}" disponible.</target>
         <note />
       </trans-unit>
     </body>

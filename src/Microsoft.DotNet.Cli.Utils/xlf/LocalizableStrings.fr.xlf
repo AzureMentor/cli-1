@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en" target-language="fr" original="../LocalizableStrings.resx">
     <body>
@@ -23,8 +23,16 @@
         <note />
       </trans-unit>
       <trans-unit id="NoExecutableFoundMatchingCommand">
-        <source>No executable found matching command "{0}". See https://aka.ms/missing-command for more information.</source>
-        <target state="needs-review-translation">Aucun exécutable ne correspond à la commande "{0}"</target>
+        <source>Could not execute because the specified command or file was not found.
+Possible reasons for this include:
+  * You misspelled a built-in dotnet command.
+  * You intended to execute a .NET Core program, but {0} does not exist.
+  * You intended to run a global tool, but a dotnet-prefixed executable with this name could not be found on the PATH.</source>
+        <target state="translated">Impossible d'effectuer l'exécution, car la commande ou le fichier spécifié est introuvable.
+Raisons possibles :
+  * Vous avez mal orthographié une commande dotnet intégrée.
+  * Vous aviez l'intention d'exécuter un programme .NET Core, mais {0} n'existe pas.
+  * Vous aviez l'intention d'exécuter un outil global, mais l'exécutable portant le nom indiqué précédé de dotnet est introuvable dans le CHEMIN.</target>
         <note />
       </trans-unit>
       <trans-unit id="WaitingForDebuggerToAttach">
@@ -59,7 +67,7 @@
       </trans-unit>
       <trans-unit id="ProcessExitedWithCode">
         <source>&lt; {0} exited with {1} in {2} ms.</source>
-        <target state="translated">&lt; {0} s'est arrêté avec {1} en {2} ms.</target>
+        <target state="translated">&lt; {0} s'est arrêté avec {1} en {2} ms.</target>
         <note />
       </trans-unit>
       <trans-unit id="UnableToInvokeMemberNameAfterCommand">
@@ -88,10 +96,10 @@
         <note />
       </trans-unit>
       <trans-unit id="CannotFindCommandAvailableAsTool">
-        <source>Cannot find command 'dotnet {0}', please run the following command to install
+        <source>Cannot find command 'dotnet {0}', run the following command to install
 
 dotnet tool install --global {1}</source>
-        <target state="translated">La commande 'dotnet {0}' est introuvable. Exécutez la commande suivante pour effectuer l'installation.
+        <target state="translated">La commande 'dotnet {0}' est introuvable. Exécutez la commande suivante pour effectuer l'installation
 
 dotnet tool install --global {1}</target>
         <note />
@@ -103,7 +111,7 @@ dotnet tool install --global {1}</target>
       </trans-unit>
       <trans-unit id="DotNetSdkInfo">
         <source>.NET Core SDK</source>
-        <target state="new">.NET Core SDK</target>
+        <target state="translated">Kit SDK .NET Core</target>
         <note />
       </trans-unit>
     </body>

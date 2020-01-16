@@ -15,9 +15,10 @@
     - Current - most current release
     - LTS - most current supported release
     - 2-part version in a format A.B - represents a specific release
-          examples: 2.0; 1.0
+          examples: 2.0, 1.0
     - Branch name
-          examples: release/2.0.0; Master
+          examples: release/2.0.0, Master
+    Note: The version parameter overrides the channel parameter.
 .PARAMETER Version
     Default: latest
     Represents a build version on specific channel. Possible values:
@@ -25,26 +26,24 @@
     - coherent - most latest coherent build on specific channel
           coherent applies only to SDK downloads
     - 3-part version in a format A.B.C - represents specific version of build
-          examples: 2.0.0-preview2-006120; 1.1.0
+          examples: 2.0.0-preview2-006120, 1.1.0
 .PARAMETER InstallDir
     Default: %LocalAppData%\Microsoft\dotnet
     Path to where to install dotnet. Note that binaries will be placed directly in a given directory.
 .PARAMETER Architecture
     Default: <auto> - this value represents currently running OS architecture
     Architecture of dotnet binaries to be installed.
-    Possible values are: <auto>, x64 and x86
+    Possible values are: <auto>, amd64, x64, x86, arm64, arm
 .PARAMETER SharedRuntime
     This parameter is obsolete and may be removed in a future version of this script.
     The recommended alternative is '-Runtime dotnet'.
-
-    Default: false
     Installs just the shared runtime bits, not the entire SDK.
-    This is equivalent to specifying `-Runtime dotnet`.
 .PARAMETER Runtime
     Installs just a shared runtime, not the entire SDK.
     Possible values:
         - dotnet     - the Microsoft.NETCore.App shared runtime
         - aspnetcore - the Microsoft.AspNetCore.App shared runtime
+        - windowsdesktop - the Microsoft.WindowsDesktop.App shared runtime
 .PARAMETER DryRun
     If set it will not perform installation but instead display what command line to use to consistently install
     currently requested version of dotnet cli. In example if you specify version 'latest' it will display a link
@@ -75,14 +74,18 @@
     Skips installing non-versioned files if they already exist, such as dotnet.exe.
 .PARAMETER NoCdn
     Disable downloading from the Azure CDN, and use the uncached feed directly.
+.PARAMETER JSonFile
+    Determines the SDK version from a user specified global.json file
+    Note: global.json must have a value for 'SDK:Version'
 #>
 [cmdletbinding()]
 param(
    [string]$Channel="LTS",
    [string]$Version="Latest",
+   [string]$JSonFile,
    [string]$InstallDir="<auto>",
    [string]$Architecture="<auto>",
-   [ValidateSet("dotnet", "aspnetcore", IgnoreCase = $false)]
+   [ValidateSet("dotnet", "aspnetcore", "windowsdesktop", IgnoreCase = $false)]
    [string]$Runtime,
    [Obsolete("This parameter may be removed in a future version of this script. The recommended alternative is '-Runtime dotnet'.")]
    [switch]$SharedRuntime,
@@ -164,18 +167,25 @@ function Get-CLIArchitecture-From-Architecture([string]$Architecture) {
         { $_ -eq "x86" } { return "x86" }
         { $_ -eq "arm" } { return "arm" }
         { $_ -eq "arm64" } { return "arm64" }
-        default { throw "Architecture not supported. If you think this is a bug, please report it at https://github.com/dotnet/cli/issues" }
+        default { throw "Architecture not supported. If you think this is a bug, report it at https://github.com/dotnet/sdk/issues" }
     }
 }
 
+# The version text returned from the feeds is a 1-line or 2-line string:
+# For the SDK and the dotnet runtime (2 lines):
+# Line 1: # commit_hash
+# Line 2: # 4-part version
+# For the aspnetcore runtime (1 line):
+# Line 1: # 4-part version
 function Get-Version-Info-From-Version-Text([string]$VersionText) {
     Say-Invocation $MyInvocation
 
-    $Data = @($VersionText.Split([char[]]@(), [StringSplitOptions]::RemoveEmptyEntries));
+    $Data = -split $VersionText
 
-    $VersionInfo = @{}
-    $VersionInfo.CommitHash = $Data[0].Trim()
-    $VersionInfo.Version = $Data[1].Trim()
+    $VersionInfo = @{
+        CommitHash = $(if ($Data.Count -gt 1) { $Data[0] })
+        Version = $Data[-1] # last line is always the version number.
+    }
     return $VersionInfo
 }
 
@@ -226,8 +236,8 @@ function GetHTTPResponse([Uri] $Uri)
                 $HttpClient = New-Object System.Net.Http.HttpClient
             }
             # Default timeout for HttpClient is 100s.  For a 50 MB download this assumes 500 KB/s average, any less will time out
-            # 10 minutes allows it to work over much slower connections.
-            $HttpClient.Timeout = New-TimeSpan -Minutes 10
+            # 20 minutes allows it to work over much slower connections.
+            $HttpClient.Timeout = New-TimeSpan -Minutes 20
             $Response = $HttpClient.GetAsync("${Uri}${FeedCredential}").Result
             if (($Response -eq $null) -or (-not ($Response.IsSuccessStatusCode))) {
                  # The feed credential is potentially sensitive info. Do not log FeedCredential to console output.
@@ -249,7 +259,6 @@ function GetHTTPResponse([Uri] $Uri)
     })
 }
 
-
 function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel, [bool]$Coherent) {
     Say-Invocation $MyInvocation
 
@@ -259,6 +268,10 @@ function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel, [bool]$Co
     }
     elseif ($Runtime -eq "aspnetcore") {
         $VersionFileUrl = "$UncachedFeed/aspnetcore/Runtime/$Channel/latest.version"
+    }
+    # Currently, the WindowsDesktop runtime is manufactured with the .Net core runtime
+    elseif ($Runtime -eq "windowsdesktop") {
+        $VersionFileUrl = "$UncachedFeed/Runtime/$Channel/latest.version"
     }
     elseif (-not $Runtime) {
         if ($Coherent) {
@@ -271,8 +284,12 @@ function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel, [bool]$Co
     else {
         throw "Invalid value for `$Runtime"
     }
-
-    $Response = GetHTTPResponse -Uri $VersionFileUrl
+    try {
+        $Response = GetHTTPResponse -Uri $VersionFileUrl
+    }
+    catch {
+        throw "Could not resolve version information."
+    }
     $StringContent = $Response.Content.ReadAsStringAsync().Result
 
     switch ($Response.Content.Headers.ContentType) {
@@ -287,20 +304,64 @@ function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel, [bool]$Co
     return $VersionInfo
 }
 
-
-function Get-Specific-Version-From-Version([string]$AzureFeed, [string]$Channel, [string]$Version) {
+function Parse-Jsonfile-For-Version([string]$JSonFile) {
     Say-Invocation $MyInvocation
 
-    switch ($Version.ToLower()) {
-        { $_ -eq "latest" } {
-            $LatestVersionInfo = Get-Latest-Version-Info -AzureFeed $AzureFeed -Channel $Channel -Coherent $False
-            return $LatestVersionInfo.Version
+    If (-Not (Test-Path $JSonFile)) {
+        throw "Unable to find '$JSonFile'"
+        exit 0
+    }
+    try {
+        $JSonContent = Get-Content($JSonFile) -Raw | ConvertFrom-Json | Select-Object -expand "sdk" -ErrorAction SilentlyContinue
+    }
+    catch {
+        throw "Json file unreadable: '$JSonFile'"
+        exit 0
+    }
+    if ($JSonContent) {
+        try {
+            $JSonContent.PSObject.Properties | ForEach-Object {
+                $PropertyName = $_.Name
+                if ($PropertyName -eq "version") {
+                    $Version = $_.Value
+                    Say-Verbose "Version = $Version"
+                }
+            }
         }
-        { $_ -eq "coherent" } {
-            $LatestVersionInfo = Get-Latest-Version-Info -AzureFeed $AzureFeed -Channel $Channel -Coherent $True
-            return $LatestVersionInfo.Version
+        catch {
+            throw "Unable to parse the SDK node in '$JSonFile'"
+            exit 0
         }
-        default { return $Version }
+    }
+    else {
+        throw "Unable to find the SDK node in '$JSonFile'"
+        exit 0
+    }
+    If ($Version -eq $null) {
+        throw "Unable to find the SDK:version node in '$JSonFile'"
+        exit 0
+    }
+    return $Version
+}
+
+function Get-Specific-Version-From-Version([string]$AzureFeed, [string]$Channel, [string]$Version, [string]$JSonFile) {
+    Say-Invocation $MyInvocation
+
+    if (-not $JSonFile) {
+        switch ($Version.ToLower()) {
+            { $_ -eq "latest" } {
+                $LatestVersionInfo = Get-Latest-Version-Info -AzureFeed $AzureFeed -Channel $Channel -Coherent $False
+                return $LatestVersionInfo.Version
+            }
+            { $_ -eq "coherent" } {
+                $LatestVersionInfo = Get-Latest-Version-Info -AzureFeed $AzureFeed -Channel $Channel -Coherent $True
+                return $LatestVersionInfo.Version
+            }
+            default { return $Version }
+        }
+    }
+    else {
+        return Parse-Jsonfile-For-Version $JSonFile
     }
 }
 
@@ -313,6 +374,9 @@ function Get-Download-Link([string]$AzureFeed, [string]$SpecificVersion, [string
     elseif ($Runtime -eq "aspnetcore") {
         $PayloadURL = "$AzureFeed/aspnetcore/Runtime/$SpecificVersion/aspnetcore-runtime-$SpecificVersion-win-$CLIArchitecture.zip"
     }
+    elseif ($Runtime -eq "windowsdesktop") {
+        $PayloadURL = "$AzureFeed/Runtime/$SpecificVersion/windowsdesktop-runtime-$SpecificVersion-win-$CLIArchitecture.zip"
+    }
     elseif (-not $Runtime) {
         $PayloadURL = "$AzureFeed/Sdk/$SpecificVersion/dotnet-sdk-$SpecificVersion-win-$CLIArchitecture.zip"
     }
@@ -320,7 +384,7 @@ function Get-Download-Link([string]$AzureFeed, [string]$SpecificVersion, [string
         throw "Invalid value for `$Runtime"
     }
 
-    Say-Verbose "Constructed primary payload URL: $PayloadURL"
+    Say-Verbose "Constructed primary named payload URL: $PayloadURL"
 
     return $PayloadURL
 }
@@ -338,7 +402,7 @@ function Get-LegacyDownload-Link([string]$AzureFeed, [string]$SpecificVersion, [
         return $null
     }
 
-    Say-Verbose "Constructed legacy payload URL: $PayloadURL"
+    Say-Verbose "Constructed legacy named payload URL: $PayloadURL"
 
     return $PayloadURL
 }
@@ -360,23 +424,6 @@ function Resolve-Installation-Path([string]$InstallDir) {
         return Get-User-Share-Path
     }
     return $InstallDir
-}
-
-function Get-Version-Info-From-Version-File([string]$InstallRoot, [string]$RelativePathToVersionFile) {
-    Say-Invocation $MyInvocation
-
-    $VersionFile = Join-Path -Path $InstallRoot -ChildPath $RelativePathToVersionFile
-    Say-Verbose "Local version file: $VersionFile"
-
-    if (Test-Path $VersionFile) {
-        $VersionText = cat $VersionFile
-        Say-Verbose "Local version file text: $VersionText"
-        return Get-Version-Info-From-Version-Text $VersionText
-    }
-
-    Say-Verbose "Local version file not found."
-
-    return $null
 }
 
 function Is-Dotnet-Package-Installed([string]$InstallRoot, [string]$RelativePathToPackage, [string]$SpecificVersion) {
@@ -468,17 +515,23 @@ function Extract-Dotnet-Package([string]$ZipPath, [string]$OutPath) {
     }
 }
 
-function DownloadFile([Uri]$Uri, [string]$OutPath) {
-    if ($Uri -notlike "http*") {
-        Say-Verbose "Copying file from $Uri to $OutPath"
-        Copy-Item $Uri.AbsolutePath $OutPath
+function DownloadFile($Source, [string]$OutPath) {
+    if ($Source -notlike "http*") {
+        #  Using System.IO.Path.GetFullPath to get the current directory
+        #    does not work in this context - $pwd gives the current directory
+        if (![System.IO.Path]::IsPathRooted($Source)) {
+            $Source = $(Join-Path -Path $pwd -ChildPath $Source)
+        }
+        $Source = Get-Absolute-Path $Source
+        Say "Copying file from $Source to $OutPath"
+        Copy-Item $Source $OutPath
         return
     }
 
     $Stream = $null
 
     try {
-        $Response = GetHTTPResponse -Uri $Uri
+        $Response = GetHTTPResponse -Uri $Source
         $Stream = $Response.Content.ReadAsStreamAsync().Result
         $File = [System.IO.File]::Create($OutPath)
         $Stream.CopyTo($File)
@@ -494,8 +547,13 @@ function DownloadFile([Uri]$Uri, [string]$OutPath) {
 function Prepend-Sdk-InstallRoot-To-Path([string]$InstallRoot, [string]$BinFolderRelativePath) {
     $BinPath = Get-Absolute-Path $(Join-Path -Path $InstallRoot -ChildPath $BinFolderRelativePath)
     if (-Not $NoPath) {
-        Say "Adding to current process PATH: `"$BinPath`". Note: This change will not be visible if PowerShell was run as a child process."
-        $env:path = "$BinPath;" + $env:path
+        $SuffixedBinPath = "$BinPath;"
+        if (-Not $env:path.Contains($SuffixedBinPath)) {
+            Say "Adding to current process PATH: `"$BinPath`". Note: This change will not be visible if PowerShell was run as a child process."
+            $env:path = $SuffixedBinPath + $env:path
+        } else {
+            Say-Verbose "Current process PATH already contains `"$BinPath`""
+        }
     }
     else {
         Say "Binaries of dotnet can be found in $BinPath"
@@ -503,22 +561,35 @@ function Prepend-Sdk-InstallRoot-To-Path([string]$InstallRoot, [string]$BinFolde
 }
 
 $CLIArchitecture = Get-CLIArchitecture-From-Architecture $Architecture
-$SpecificVersion = Get-Specific-Version-From-Version -AzureFeed $AzureFeed -Channel $Channel -Version $Version
+$SpecificVersion = Get-Specific-Version-From-Version -AzureFeed $AzureFeed -Channel $Channel -Version $Version -JSonFile $JSonFile
 $DownloadLink = Get-Download-Link -AzureFeed $AzureFeed -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
 $LegacyDownloadLink = Get-LegacyDownload-Link -AzureFeed $AzureFeed -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
 
-if ($DryRun) {
-    Say "Payload URLs:"
-    Say "Primary - $DownloadLink"
-    if ($LegacyDownloadLink) {
-        Say "Legacy - $LegacyDownloadLink"
-    }
-    Say "Repeatable invocation: .\$($MyInvocation.Line)"
-    exit 0
-}
-
 $InstallRoot = Resolve-Installation-Path $InstallDir
 Say-Verbose "InstallRoot: $InstallRoot"
+$ScriptName = $MyInvocation.MyCommand.Name
+
+if ($DryRun) {
+    Say "Payload URLs:"
+    Say "Primary named payload URL: $DownloadLink"
+    if ($LegacyDownloadLink) {
+        Say "Legacy named payload URL: $LegacyDownloadLink"
+    }
+    $RepeatableCommand = ".\$ScriptName -Version `"$SpecificVersion`" -InstallDir `"$InstallRoot`" -Architecture `"$CLIArchitecture`""
+    if ($Runtime -eq "dotnet") {
+       $RepeatableCommand+=" -Runtime `"dotnet`""
+    }
+    elseif ($Runtime -eq "aspnetcore") {
+       $RepeatableCommand+=" -Runtime `"aspnetcore`""
+    }
+    foreach ($key in $MyInvocation.BoundParameters.Keys) {
+        if (-not (@("Architecture","Channel","DryRun","InstallDir","Runtime","SharedRuntime","Version") -contains $key)) {
+            $RepeatableCommand+=" -$key `"$($MyInvocation.BoundParameters[$key])`""
+        }
+    }
+    Say "Repeatable invocation: $RepeatableCommand"
+    exit 0
+}
 
 if ($Runtime -eq "dotnet") {
     $assetName = ".NET Core Runtime"
@@ -527,6 +598,10 @@ if ($Runtime -eq "dotnet") {
 elseif ($Runtime -eq "aspnetcore") {
     $assetName = "ASP.NET Core Runtime"
     $dotnetPackageRelativePath = "shared\Microsoft.AspNetCore.App"
+}
+elseif ($Runtime -eq "windowsdesktop") {
+    $assetName = ".NET Core Windows Desktop Runtime"
+    $dotnetPackageRelativePath = "shared\Microsoft.WindowsDesktop.App"
 }
 elseif (-not $Runtime) {
     $assetName = ".NET Core SDK"
@@ -559,7 +634,7 @@ Say-Verbose "Zip path: $ZipPath"
 $DownloadFailed = $false
 Say "Downloading link: $DownloadLink"
 try {
-    DownloadFile -Uri $DownloadLink -OutPath $ZipPath
+    DownloadFile -Source $DownloadLink -OutPath $ZipPath
 }
 catch {
     Say "Cannot download: $DownloadLink"
@@ -569,7 +644,7 @@ catch {
         Say-Verbose "Legacy zip path: $ZipPath"
         Say "Downloading legacy link: $DownloadLink"
         try {
-            DownloadFile -Uri $DownloadLink -OutPath $ZipPath
+            DownloadFile -Source $DownloadLink -OutPath $ZipPath
         }
         catch {
             Say "Cannot download: $DownloadLink"

@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.EnvironmentAbstractions;
+using NuGet.Versioning;
 
 namespace Microsoft.DotNet.Configurer
 {
@@ -49,22 +50,13 @@ namespace Microsoft.DotNet.Configurer
 
             if (ShouldPrintFirstTimeUseNotice())
             {
-                PrintFirstTimeUseNotice();
+                PrintFirstTimeMessageWelcome();
                 if (ShouldPrintTelemetryMessageWhenFirstTimeUseNoticeIsEnabled())
                 {
                     PrintTelemetryMessage();
                 }
 
-                _firstTimeUseNoticeSentinel.CreateIfNotExists();
-            }
-            else if (ShouldPrintShortFirstTimeUseNotice())
-            {
-                PrintShortFirstTimeUseNotice();
-                if (ShouldPrintTelemetryMessageWhenFirstTimeUseNoticeIsEnabled())
-                {
-                    PrintShorTelemetryMessage();
-                }
-
+                PrintFirstTimeMessageMoreInformation();
                 _firstTimeUseNoticeSentinel.CreateIfNotExists();
             }
 
@@ -78,9 +70,6 @@ namespace Microsoft.DotNet.Configurer
         {
             _aspNetCoreCertificateGenerator.GenerateAspNetCoreDevelopmentCertificate();
 
-            _reporter.WriteLine();
-            _reporter.WriteLine(LocalizableStrings.AspNetCertificateInstalled);
-
             _aspNetCertificateSentinel.CreateIfNotExists();
         }
 
@@ -89,15 +78,15 @@ namespace Microsoft.DotNet.Configurer
 #if EXCLUDE_ASPNETCORE
             return false;
 #else
-            return ShouldRunFirstRunExperience() &&
-                _dotnetFirstRunConfiguration.GenerateAspNetCertificate &&
+            return _dotnetFirstRunConfiguration.GenerateAspNetCertificate &&
                 !_aspNetCertificateSentinel.Exists();
 #endif
         }
 
         private bool ShouldAddPackageExecutablePath()
         {
-            return ShouldRunFirstRunExperience() && !_toolPathSentinel.Exists();
+            return _dotnetFirstRunConfiguration.AddGlobalToolsToPath &&
+                !_toolPathSentinel.Exists();
         }
 
         private void AddPackageExecutablePath()
@@ -109,12 +98,6 @@ namespace Microsoft.DotNet.Configurer
 
         private bool ShouldPrintFirstTimeUseNotice()
         {
-            return ShouldRunFirstRunExperience() &&
-                !_firstTimeUseNoticeSentinel.Exists();
-        }
-
-        private bool ShouldPrintShortFirstTimeUseNotice()
-        {
             return !_firstTimeUseNoticeSentinel.Exists();
         }
 
@@ -123,16 +106,19 @@ namespace Microsoft.DotNet.Configurer
             return !_dotnetFirstRunConfiguration.TelemetryOptout;
         }
 
-        private void PrintFirstTimeUseNotice()
+        private void PrintFirstTimeMessageWelcome()
         {
             _reporter.WriteLine();
-            _reporter.WriteLine(LocalizableStrings.FirstTimeWelcomeMessage);
+            string productVersion = Product.Version;
+            _reporter.WriteLine(string.Format(
+                LocalizableStrings.FirstTimeMessageWelcome,
+                DeriveDotnetVersionFromProductVersion(productVersion),
+                productVersion));
         }
-
-        private void PrintShortFirstTimeUseNotice()
+        private void PrintFirstTimeMessageMoreInformation()
         {
             _reporter.WriteLine();
-            _reporter.WriteLine(LocalizableStrings.ShortFirstTimeWelcomeMessage);
+            _reporter.WriteLine(LocalizableStrings.FirstTimeMessageMoreInformation);
         }
 
         private void PrintTelemetryMessage()
@@ -141,23 +127,14 @@ namespace Microsoft.DotNet.Configurer
             _reporter.WriteLine(LocalizableStrings.TelemetryMessage);
         }
 
-        private void PrintShorTelemetryMessage()
+        internal static string DeriveDotnetVersionFromProductVersion(string productVersion)
         {
-            _reporter.WriteLine();
-            _reporter.WriteLine(LocalizableStrings.ShortTelemetryMessage);
-        }
+            if (!NuGetVersion.TryParse(productVersion, out var parsedVersion))
+            {
+                return string.Empty;
+            }
 
-        private void PrintUnauthorizedAccessMessage()
-        {
-            _reporter.WriteLine();
-            _reporter.WriteLine(string.Format(
-                LocalizableStrings.UnauthorizedAccessMessage,
-                _cliFallbackFolderPath));
-        }
-
-        private bool ShouldRunFirstRunExperience()
-        {
-            return !_dotnetFirstRunConfiguration.SkipFirstRunExperience;
+            return $"{parsedVersion.Major}.{parsedVersion.Minor}";
         }
     }
 }

@@ -8,8 +8,10 @@ using Microsoft.DotNet.TestFramework;
 using Microsoft.DotNet.Cli.Utils;
 using System.IO;
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace Microsoft.DotNet.Cli.Test.Tests
 {
@@ -28,9 +30,11 @@ namespace Microsoft.DotNet.Cli.Test.Tests
             // Verify
             if (!DotnetUnderTest.IsLocalized())
             {
-                result.StdOut.Should().Contain("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.");
-                result.StdOut.Should().Contain("Passed   VSTestPassTest");
-                result.StdOut.Should().Contain("Failed   VSTestFailTest");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
+                result.StdOut.Should().Contain("\u221a VSTestPassTest");
+                result.StdOut.Should().Contain("X VSTestFailTest");
             }
 
             result.ExitCode.Should().Be(1);
@@ -52,9 +56,13 @@ namespace Microsoft.DotNet.Cli.Test.Tests
 
             if (!DotnetUnderTest.IsLocalized())
             {
-                result.StdOut.Should().Contain("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.");
-                result.StdOut.Should().Contain("Passed   VSTestPassTest");
-                result.StdOut.Should().Contain("Failed   VSTestFailTest");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
+                result.StdOut.Should().Contain("\u221a VSTestPassTest");
+                result.StdOut.Should().Contain("X VSTestFailTest");
             }
 
             result.ExitCode.Should().Be(1);
@@ -89,9 +97,8 @@ namespace Microsoft.DotNet.Cli.Test.Tests
 
             new DotnetTestCommand()
                 .WithWorkingDirectory(testProjectDirectory)
-                .ExecuteWithCapturedOutput($"{TestBase.ConsoleLoggerOutputNormal} --no-restore")
-                .Should().Pass()
-                .And.HaveStdOutContaining("Skipping running test for project");
+                .ExecuteWithCapturedOutput($"{TestBase.ConsoleLoggerOutputNormal} --no-restore /p:IsTestProject=''")
+                .Should().Pass();
         }
 
         [Fact]
@@ -120,9 +127,11 @@ namespace Microsoft.DotNet.Cli.Test.Tests
             // Verify
             if (!DotnetUnderTest.IsLocalized())
             {
-                result.StdOut.Should().Contain("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.");
-                result.StdOut.Should().Contain("Passed   TestNamespace.VSTestXunitTests.VSTestXunitPassTest");
-                result.StdOut.Should().Contain("Failed   TestNamespace.VSTestXunitTests.VSTestXunitFailTest");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
+                result.StdOut.Should().Contain("\u221a TestNamespace.VSTestXunitTests.VSTestXunitPassTest");
+                result.StdOut.Should().Contain("X TestNamespace.VSTestXunitTests.VSTestXunitFailTest");
             }
 
             result.ExitCode.Should().Be(1);
@@ -143,9 +152,10 @@ namespace Microsoft.DotNet.Cli.Test.Tests
 
             if (!DotnetUnderTest.IsLocalized())
             {
-                result.StdOut.Should().Contain("Failed   TestNamespace.VSTestXunitTests.VSTestXunitFailTest");
-                result.StdOut.Should().Contain("Assert.Equal() Failure");
-                result.StdOut.Should().Contain("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.");
+                result.StdOut.Should().Contain("X TestNamespace.VSTestXunitTests.VSTestXunitFailTest");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
             }
         }
 
@@ -154,7 +164,7 @@ namespace Microsoft.DotNet.Cli.Test.Tests
         {
             // Copy and restore VSTestCore project in output directory of project dotnet-vstest.Tests
             var testProjectDirectory = this.CopyAndRestoreVSTestDotNetCoreTestApp("10");
-
+            var trxFileNamePattern = "custom*.trx";
             string trxLoggerDirectory = Path.Combine(testProjectDirectory, "RD");
 
             // Delete trxLoggerDirectory if it exist
@@ -171,11 +181,11 @@ namespace Microsoft.DotNet.Cli.Test.Tests
             // Verify
             if (!DotnetUnderTest.IsLocalized())
             {
-                var trxFilePath = Path.Combine(trxLoggerDirectory, "custom.trx");
-                Assert.True(File.Exists(trxFilePath));
-                result.StdOut.Should().Contain(trxFilePath);
-                result.StdOut.Should().Contain("Passed   VSTestPassTest");
-                result.StdOut.Should().Contain("Failed   VSTestFailTest");
+                // We append current date time to trx file name, hence modifying this check
+                Assert.True(Directory.EnumerateFiles(trxLoggerDirectory, trxFileNamePattern).Any());
+
+                result.StdOut.Should().Contain("\u221a VSTestPassTest");
+                result.StdOut.Should().Contain("X VSTestFailTest");
             }
 
             // Cleanup trxLoggerDirectory if it exist
@@ -185,7 +195,7 @@ namespace Microsoft.DotNet.Cli.Test.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip="https://github.com/microsoft/vstest/issues/2202")]
         public void TestWillNotBuildTheProjectIfNoBuildArgsIsGiven()
         {
             // Copy and restore VSTestCore project in output directory of project dotnet-vstest.Tests
@@ -246,7 +256,7 @@ namespace Microsoft.DotNet.Cli.Test.Tests
         {
             // Copy and restore VSTestCore project in output directory of project dotnet-vstest.Tests
             var testProjectDirectory = this.CopyAndRestoreVSTestDotNetCoreTestApp("7");
-
+            var trxFileNamePattern = "custom*.trx";
             string trxLoggerDirectory = Path.Combine(testProjectDirectory, "RD");
 
             // Delete trxLoggerDirectory if it exist
@@ -261,9 +271,8 @@ namespace Microsoft.DotNet.Cli.Test.Tests
                                        .ExecuteWithCapturedOutput("--logger \"trx;logfilename=custom.trx\" -- RunConfiguration.ResultsDirectory=" + trxLoggerDirectory);
 
             // Verify
-            var trxFilePath = Path.Combine(trxLoggerDirectory, "custom.trx");
-            Assert.True(File.Exists(trxFilePath));
-            result.StdOut.Should().Contain(trxFilePath);
+            // We append current date time to trx file name, hence modifying this check
+            Assert.True(Directory.EnumerateFiles(trxLoggerDirectory, trxFileNamePattern).Any());
 
             // Cleanup trxLoggerDirectory if it exist
             if (Directory.Exists(trxLoggerDirectory))
@@ -302,9 +311,11 @@ namespace Microsoft.DotNet.Cli.Test.Tests
 
             if (!DotnetUnderTest.IsLocalized())
             {
-                result.StdOut.Should().Contain("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.");
-                result.StdOut.Should().Contain("Passed   VSTestPassTest");
-                result.StdOut.Should().Contain("Failed   VSTestFailTest");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
+                result.StdOut.Should().Contain("\u221a VSTestPassTest");
+                result.StdOut.Should().Contain("X VSTestFailTest");
             }
 
             result.ExitCode.Should().Be(1);
@@ -324,9 +335,11 @@ namespace Microsoft.DotNet.Cli.Test.Tests
             // Verify
             if (!DotnetUnderTest.IsLocalized())
             {
-                result.StdOut.Should().Contain("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.");
-                result.StdOut.Should().NotContain("Passed   TestNamespace.VSTestTests.VSTestPassTest");
-                result.StdOut.Should().NotContain("Failed   TestNamespace.VSTestTests.VSTestFailTest");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
+                result.StdOut.Should().NotContain("\u221a TestNamespace.VSTestTests.VSTestPassTest");
+                result.StdOut.Should().NotContain("X TestNamespace.VSTestTests.VSTestFailTest");
             }
 
             result.ExitCode.Should().Be(1);
@@ -361,16 +374,33 @@ namespace Microsoft.DotNet.Cli.Test.Tests
 
             if (!DotnetUnderTest.IsLocalized())
             {
-                result
-                    .Should()
-                    .HaveStdOutContaining("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.")
-                    .And
-                    .HaveStdOutContaining("Passed   TestNamespace.VSTestXunitTests.VSTestXunitPassTest")
-                    .And
-                    .HaveStdOutContaining("Failed   TestNamespace.VSTestXunitTests.VSTestXunitFailTest");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
             }
 
             result.ExitCode.Should().Be(1);
+        }
+
+        [Fact]
+        public void ItAcceptsNoLogoAsCliArguments()
+        {
+            // Copy and restore VSTestCore project in output directory of project dotnet-vstest.Tests
+            var testProjectDirectory = this.CopyAndRestoreVSTestDotNetCoreTestApp("14");
+
+            // Call test with logger enable
+            CommandResult result = new DotnetTestCommand()
+                                       .WithWorkingDirectory(testProjectDirectory)
+                                       .ExecuteWithCapturedOutput("--nologo");
+
+            // Verify
+            if (!DotnetUnderTest.IsLocalized())
+            {
+                result.StdOut.Should().NotContain("Microsoft (R) Test Execution Command Line Tool Version");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
+            }
         }
 
         [WindowsOnlyFact]
@@ -398,7 +428,9 @@ namespace Microsoft.DotNet.Cli.Test.Tests
             // Verify test results
             if (!DotnetUnderTest.IsLocalized())
             {
-                result.StdOut.Should().Contain("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
             }
 
             // Verify coverage file.
@@ -432,7 +464,9 @@ namespace Microsoft.DotNet.Cli.Test.Tests
             // Verify test results
             if (!DotnetUnderTest.IsLocalized())
             {
-                result.StdOut.Should().Contain("Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.");
+                result.StdOut.Should().Contain("Total tests: 2");
+                result.StdOut.Should().Contain("Passed: 1");
+                result.StdOut.Should().Contain("Failed: 1");
             }
 
             // Verify coverage file.
@@ -459,11 +493,62 @@ namespace Microsoft.DotNet.Cli.Test.Tests
             if (!DotnetUnderTest.IsLocalized())
             {
                 result.StdOut.Should().Contain("No code coverage data available. Code coverage is currently supported only on Windows.");
-                result.StdOut.Should().Contain("Total tests: 1. Passed: 1. Failed: 0. Skipped: 0.");
+                result.StdOut.Should().Contain("Total tests: 1");
+                result.StdOut.Should().Contain("Passed: 1");
                 result.StdOut.Should().Contain("Test Run Successful.");
             }
 
             result.ExitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void ItShouldNotShowImportantMessage()
+        {
+            string testAppName = "VSTestCore";
+            var testInstance = TestAssets.Get(testAppName)
+                .CreateInstance()
+                .WithSourceFiles()
+                .WithProjectChanges(ProjectModification.AddDisplayMessageBeforeVsTestToProject);
+
+            var testProjectDirectory = testInstance.Root.FullName;
+
+            // Call test
+            CommandResult result = new DotnetTestCommand()
+                .WithWorkingDirectory(testProjectDirectory)
+                .ExecuteWithCapturedOutput();
+
+            // Verify
+            if (!DotnetUnderTest.IsLocalized())
+            {
+                result.StdOut.Should().NotContain("Important text");
+            }
+
+            result.ExitCode.Should().Be(1);
+        }
+
+        [Fact]
+        public void ItShouldShowImportantMessageWhenInteractiveFlagIsPassed()
+        {
+            string testAppName = "VSTestCore";
+            var testInstance = TestAssets.Get(testAppName)
+                .CreateInstance()
+                .WithSourceFiles()
+                .WithProjectChanges(ProjectModification.AddDisplayMessageBeforeVsTestToProject);
+
+            var testProjectDirectory = testInstance.Root.FullName;
+
+            // Call test
+            CommandResult result = new DotnetTestCommand()
+                .WithWorkingDirectory(testProjectDirectory)
+                .ExecuteWithCapturedOutput("--interactive");
+
+            // Verify
+            if (!DotnetUnderTest.IsLocalized())
+            {
+                result.StdOut.Should().Contain("Important text");
+            }
+
+            result.ExitCode.Should().Be(1);
         }
 
         private string CopyAndRestoreVSTestDotNetCoreTestApp([CallerMemberName] string callingMethod = "")

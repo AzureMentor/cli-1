@@ -4,27 +4,27 @@
     <body>
       <trans-unit id="CannotFindCommandName">
         <source>Cannot find a tool in the manifest file that has a command named '{0}'.</source>
-        <target state="new">Cannot find a tool in the manifest file that has a command named '{0}'.</target>
+        <target state="translated">In der Manifestdatei wurde kein Tool mit einem Befehl namens "{0}" gefunden.</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandDescription">
         <source>Run local tool.</source>
-        <target state="new">Run local tool.</target>
+        <target state="translated">Hiermit wird das lokale Tool ausgeführt.</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandNameArgumentDescription">
         <source>The command name of the tool to run.</source>
-        <target state="new">The command name of the tool to run.</target>
+        <target state="translated">Der Befehlsname des auszuführenden Tools.</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandNameArgumentName">
         <source>COMMAND_NAME</source>
-        <target state="new">COMMAND_NAME</target>
+        <target state="translated">COMMAND_NAME</target>
         <note />
       </trans-unit>
       <trans-unit id="SpecifyExactlyOneCommandName">
-        <source>Please specify one command name to run.</source>
-        <target state="new">Please specify one command name to run.</target>
+        <source>Specify one command name to run.</source>
+        <target state="translated">Geben Sie einen Befehlsnamen für die Ausführung an.</target>
         <note />
       </trans-unit>
     </body>

@@ -28,14 +28,6 @@ namespace Microsoft.DotNet.Tools.Test
 
         public static TestCommand FromArgs(string[] args, string msbuildPath = null)
         {
-            var msbuildArgs = new List<string>()
-            {
-                "-target:VSTest",
-                "-verbosity:quiet",
-                "-nodereuse:false", // workaround for https://github.com/Microsoft/vstest/issues/1503
-                "-nologo"
-            };
-
             var parser = Parser.Instance;
 
             var result = parser.ParseFrom("dotnet test", args);
@@ -44,6 +36,14 @@ namespace Microsoft.DotNet.Tools.Test
             result.ShowHelpOrErrorIfAppropriate();
 
             var parsedTest = result["dotnet"]["test"];
+
+            var msbuildArgs = new List<string>()
+            {
+                "-target:VSTest",
+                $"-verbosity:{GetDefaultVerbosity(parsedTest)}",
+                "-nodereuse:false", // workaround for https://github.com/Microsoft/vstest/issues/1503
+                "-nologo"
+            };
 
             msbuildArgs.AddRange(parsedTest.OptionValuesToBeForwarded());
 
@@ -80,9 +80,32 @@ namespace Microsoft.DotNet.Tools.Test
                 msbuildPath);
         }
 
+        private static string GetDefaultVerbosity(AppliedOption options)
+        {
+            var defaultVerbosity = "quiet";
+            if (options.HasOption(Constants.RestoreInteractiveOption))
+            {
+                defaultVerbosity = "minimal";
+            }
+
+            return defaultVerbosity;
+        }
+
         public static int Run(string[] args)
         {
             DebugHelper.HandleDebugSwitch(ref args);
+
+            // Fix for https://github.com/Microsoft/vstest/issues/1453
+            // Try to run dll/exe directly using the VSTestForwardingApp
+            if (ContainsBuiltTestSources(args))
+            {
+                var convertedArgs = new VSTestArgumentConverter().Convert(args, out var ignoredArgs);
+                if (ignoredArgs.Any())
+                {
+                    Reporter.Output.WriteLine(string.Format(LocalizableStrings.IgnoredArgumentsMessage, string.Join(" ", ignoredArgs)).Yellow());
+                }
+                return new VSTestForwardingApp(convertedArgs).Execute();
+            }
 
             // Workaround for https://github.com/Microsoft/vstest/issues/1503
             const string NodeWindowEnvironmentName = "MSBUILDENSURESTDOUTFORTASKPROCESSES";
@@ -97,6 +120,19 @@ namespace Microsoft.DotNet.Tools.Test
             {
                 Environment.SetEnvironmentVariable(NodeWindowEnvironmentName, previousNodeWindowSetting);
             }
+        }
+
+        private static bool ContainsBuiltTestSources(string[] args)
+        {
+            foreach (var arg in args)
+            {
+                if (!arg.StartsWith("-") &&
+                    (arg.EndsWith("dll", StringComparison.OrdinalIgnoreCase) || arg.EndsWith("exe", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static string GetSemiColonEscapedString(string arg)

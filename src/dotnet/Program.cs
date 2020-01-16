@@ -68,6 +68,8 @@ namespace Microsoft.DotNet.Cli
             }
             catch (Exception e) when (!e.ShouldBeDisplayedAsError())
             {
+                // If telemetry object has not been initialized yet. It cannot be collected
+                TelemetryEventEntry.SendFiltered(e);
                 Reporter.Error.WriteLine(e.ToString().Red().Bold());
 
                 return 1;
@@ -143,11 +145,11 @@ namespace Microsoft.DotNet.Cli
                         var environmentProvider = new EnvironmentProvider();
 
                         bool generateAspNetCertificate =
-                            environmentProvider.GetEnvironmentVariableAsBool("DOTNET_GENERATE_ASPNET_CERTIFICATE", true);
-                        bool skipFirstRunExperience =
-                            environmentProvider.GetEnvironmentVariableAsBool("DOTNET_SKIP_FIRST_TIME_EXPERIENCE", false);
+                            environmentProvider.GetEnvironmentVariableAsBool("DOTNET_GENERATE_ASPNET_CERTIFICATE", defaultValue: true);
                         bool telemetryOptout =
-                            environmentProvider.GetEnvironmentVariableAsBool("DOTNET_CLI_TELEMETRY_OPTOUT", false);
+                          environmentProvider.GetEnvironmentVariableAsBool("DOTNET_CLI_TELEMETRY_OPTOUT", defaultValue: false);
+                        bool addGlobalToolsToPath =
+                            environmentProvider.GetEnvironmentVariableAsBool("DOTNET_ADD_GLOBAL_TOOLS_TO_PATH", defaultValue: true);
 
                         ReportDotnetHomeUsage(environmentProvider);
 
@@ -159,16 +161,12 @@ namespace Microsoft.DotNet.Cli
                             firstTimeUseNoticeSentinel = new NoOpFirstTimeUseNoticeSentinel();
                             toolPathSentinel = new NoOpFileSentinel(exists: false);
                             hasSuperUserAccess = true;
-
-                            // When running through a native installer, we want the cache expansion to happen, so
-                            // we need to override this.
-                            skipFirstRunExperience = false;
                         }
 
                         var dotnetFirstRunConfiguration = new DotnetFirstRunConfiguration(
                             generateAspNetCertificate: generateAspNetCertificate,
-                            skipFirstRunExperience: skipFirstRunExperience,
-                            telemetryOptout: telemetryOptout);
+                            telemetryOptout: telemetryOptout,
+                            addGlobalToolsToPath: addGlobalToolsToPath);
 
                         ConfigureDotNetForFirstTimeUse(
                             firstTimeUseNoticeSentinel,
@@ -227,6 +225,8 @@ namespace Microsoft.DotNet.Cli
                     .Execute();
                 exitCode = result.ExitCode;
             }
+
+            telemetryClient.Flush();
             return exitCode;
         }
 

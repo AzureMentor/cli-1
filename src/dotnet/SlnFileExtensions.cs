@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.Build.Construction;
@@ -16,7 +16,7 @@ namespace Microsoft.DotNet.Tools.Common
 {
     internal static class SlnFileExtensions
     {
-        public static void AddProject(this SlnFile slnFile, string fullProjectPath)
+        public static void AddProject(this SlnFile slnFile, string fullProjectPath, IList<string> solutionFolders)
         {
             if (string.IsNullOrEmpty(fullProjectPath))
             {
@@ -81,7 +81,10 @@ namespace Microsoft.DotNet.Tools.Common
                     projectInstance,
                     slnFile.ProjectConfigurationsSection.GetOrCreatePropertySet(slnProject.Id));
 
-                slnFile.AddSolutionFolders(slnProject);
+                if (solutionFolders != null)
+                {
+                    slnFile.AddSolutionFolders(slnProject, solutionFolders);
+                }
 
                 slnFile.Projects.Add(slnProject);
 
@@ -209,10 +212,8 @@ namespace Microsoft.DotNet.Tools.Common
             return $"{projectConfiguration}|{(projectPlatform == "AnyCPU" ? "Any CPU" : projectPlatform)}";
         }
 
-        private static void AddSolutionFolders(this SlnFile slnFile, SlnProject slnProject)
+        private static void AddSolutionFolders(this SlnFile slnFile, SlnProject slnProject, IList<string> solutionFolders)
         {
-            var solutionFolders = slnProject.GetSolutionFoldersFromProject();
-
             if (solutionFolders.Any())
             {
                 var nestedProjectsSection = slnFile.Sections.GetOrCreateSection(
@@ -387,6 +388,9 @@ namespace Microsoft.DotNet.Tools.Common
                     var solutionFoldersInUse = slnFile.GetSolutionFoldersThatContainProjectsInItsHierarchy(
                         nestedProjectsSection.Properties);
 
+                    solutionFoldersInUse.UnionWith(slnFile.GetSolutionFoldersThatContainSolutionItemsInItsHierarchy(
+                        nestedProjectsSection.Properties));
+
                     foreach (var solutionFolderProject in solutionFolderProjects)
                     {
                         if (!solutionFoldersInUse.Contains(solutionFolderProject.Id))
@@ -427,6 +431,37 @@ namespace Microsoft.DotNet.Tools.Common
             }
 
             return solutionFoldersInUse;
+        }
+
+        private static HashSet<string> GetSolutionFoldersThatContainSolutionItemsInItsHierarchy(
+            this SlnFile slnFile,
+            SlnPropertySet nestedProjects)
+        {
+            var solutionFoldersInUse = new HashSet<string>();
+
+            var solutionItemsFolderProjects = slnFile.Projects
+                    .GetProjectsByType(ProjectTypeGuids.SolutionFolderGuid)
+                    .Where(ContainsSolutionItems);
+
+            foreach (var solutionItemsFolderProject in solutionItemsFolderProjects)
+            {
+                var id = solutionItemsFolderProject.Id;
+                solutionFoldersInUse.Add(id);
+
+                while (nestedProjects.ContainsKey(id))
+                {
+                    id = nestedProjects[id];
+                    solutionFoldersInUse.Add(id);
+                }
+            }
+
+            return solutionFoldersInUse;
+        }
+
+        private static bool ContainsSolutionItems(SlnProject project)
+        {
+            return project.Sections
+                .GetSection("SolutionItems", SlnSectionType.PreProcess) != null;
         }
     }
 }

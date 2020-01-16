@@ -45,9 +45,9 @@ The way the `dotnet` driver finds the command it is instructed to run using `dot
 Adding a new command to the .NET Core CLI 
 =========================================
 
-If you want to contribute to the actual .NET Core CLI by adding a new command that you think would be useful, please refer to the [developer guide](../project-docs/developer-guide.md) in this directory. It contains all of the guidance on both the process as well as the infrastructure that you need to adhere to when adding a new command to the CLI toolchain. 
+If you want to contribute to the actual .NET Core CLI by adding a new command that you think would be useful, refer to the [developer guide](../project-docs/developer-guide.md) in this directory. It contains all of the guidance on both the process as well as the infrastructure that you need to adhere to when adding a new command to the CLI toolchain. 
 
-After you familiarize yourself with the process of working with the source code in the repo, please consult the [CLI UX guidelines](cli-ux-guidelines.md) to get to know the user experience tenants the CLI has. 
+After you familiarize yourself with the process of working with the source code in the repo, consult the [CLI UX guidelines](cli-ux-guidelines.md) to get to know the user experience tenants the CLI has. 
 
 Adding a new command locally
 ============================ 
@@ -57,6 +57,6 @@ Guidance on how to write a command
 ==================================
 How you write a given command depends largely on whether you are trying to add it to the CLI project or want to add the command locally, that is on your machine or server. 
 
-For the former case, the [developer guide](developer-guide.md) has all of the details that you will need to get going. 
+For the former case, the [developer guide](../project-docs/developer-guide.md) has all of the details that you will need to get going. 
 
 If you are adding a command on your own machine(s), then there is really no special model to keep in mind. However, since your users will be using the local commands through the `dotnet` driver, we strongly suggest to keep to the principles outlined in the [CLI UX guidelines](cli-ux-guidelines.md) to have an unified user experience for your users. 

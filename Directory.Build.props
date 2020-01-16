@@ -27,22 +27,23 @@ tools\TestAssetsDependencies\TestAssetsDependencies.csproj
 
     <DisableImplicitPackageTargetFallback>true</DisableImplicitPackageTargetFallback>
 
-    <CliTargetFramework>netcoreapp3.0</CliTargetFramework>
-    <!-- We only need this until we get a dotnet/sdk in stage0 with a 3.0 support. -->
-    <NETCoreAppMaximumVersion>3.0</NETCoreAppMaximumVersion>
+    <CliTargetFramework>netcoreapp3.1</CliTargetFramework>
+    <LangVersion>latest</LangVersion>
 
-    <!-- disabling source link RHEL.6 as the sourcelink package is missing native dependencies for it -->
-    <EnableSourceLink Condition=" '$(Rid)' == 'rhel.6-x64' ">false</EnableSourceLink>
-    <EnableSourceControlManagerQueries Condition=" '$(Rid)' == 'rhel.6-x64' ">false</EnableSourceControlManagerQueries>
-    <DeterministicSourcePaths Condition=" '$(Rid)' == 'rhel.6-x64' ">false</DeterministicSourcePaths>
     <UsingToolMicrosoftNetCompilers>false</UsingToolMicrosoftNetCompilers>
-  </PropertyGroup>
 
-  <PropertyGroup>
-    <ImportNetSdkFromRepoToolset>false</ImportNetSdkFromRepoToolset>
-  </PropertyGroup>
+    <!-- https://github.com/dotnet/cli/issues/10637: frequent CI failures when test output is captured -->
+    <TestCaptureOutput>false</TestCaptureOutput>
 
+    <IsShippingPackage>false</IsShippingPackage>
+  </PropertyGroup>
+  
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
+
+  <PropertyGroup Condition="'$(CopyrightNetFoundation)' != ''">
+    <Copyright>$(CopyrightNetFoundation)</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
 
   <Import Project="build/FileExtensions.props" />
   <Import Project="build/MSBuildExtensions.props" />

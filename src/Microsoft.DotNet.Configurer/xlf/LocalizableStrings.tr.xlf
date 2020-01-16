@@ -1,72 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en" target-language="tr" original="../LocalizableStrings.resx">
     <body>
-      <trans-unit id="FirstTimeWelcomeMessage">
-        <source>Welcome to .NET Core!
----------------------
-Learn more about .NET Core: https://aka.ms/dotnet-docs
-Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli-docs</source>
-        <target state="needs-review-translation">.NET Core’a Hoş Geldiniz!
----------------------
-.NET Core hakkında daha fazla bilgi için bkz. https://aka.ms/dotnet-docs
-Kullanılabilir komutları görmek için 'dotnet --help' komutunu kullanın veya https://aka.ms/dotnet-cli-docs adresine gidin.
-
-Telemetri
----------
-.NET Core araçları, deneyiminizi iyileştirmemize yardımcı olmak için kullanım verileri toplar. Veriler anonimdir ve komut satırı bağımsız değişkenlerini içermez. Veriler Microsoft tarafından toplanır ve topluluk ile paylaşılır. Sık kullandığınız kabuk aracılığıyla DOTNET_CLI_TELEMETRY_OPTOUT ortam değişkenini '1' veya 'true' değerine ayarlayarak telemetri toplanmasını geri çevirebilirsiniz.
-
-.NET Core CLI Araçları telemetrisi hakkında daha faza bilgi için bkz. https://aka.ms/dotnet-cli-telemetry.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="UnauthorizedAccessMessage">
-        <source>Permission denied to modify the '{0}' folder.
-
-Here are some options to fix this error:
-----------------------------------------
-1. Re-run this command with elevated access.
-2. Disable the first run experience by setting the environment variable DOTNET_SKIP_FIRST_TIME_EXPERIENCE to true.
-3. Copy the .NET Core SDK to a non-protected location and use it from there.
-    </source>
-        <target state="needs-review-translation">'{0}' klasörünü değiştirme izni verilmedi.
-
-Bu hatayı düzeltmek için bazı seçenekler:
-----------------------------------------
-1. Bu komutu yükseltilmiş erişim ile yeniden çalıştırın.
-2. DOTNET_SKIP_FIRST_TIME_EXPERIENCE ortam değişkenini true olarak ayarlayarak ilk çalıştırma deneyimini devre dışı bırakın.
-3. .NET Core SDK’sını korumasız bir konuma kopyalayarak oradan kullanın.
-    </target>
-        <note />
-      </trans-unit>
-      <trans-unit id="AspNetCertificateInstalled">
-        <source>ASP.NET Core
-------------
-Successfully installed the ASP.NET Core HTTPS Development Certificate.
-To trust the certificate run 'dotnet dev-certs https --trust' (Windows and macOS only). For establishing trust on other platforms refer to the platform specific documentation.
-For more information on configuring HTTPS see https://go.microsoft.com/fwlink/?linkid=848054.</source>
-        <target state="translated">ASP.NET Core
-------------
-ASP.NET Core HTTPS Geliştirme Sertifikası başarıyla yüklendi.
-Sertifikaya güvenmek için 'dotnet dev-certs https --trust' komutunu çalıştırın (yalnızca Windows ve macOS). Diğer platformlarda güven ilişkisini oluşturmak için ilgili platforma özgü belgelere başvurun.
-HTTPS yapılandırması hakkında daha fazla bilgi edinmek için bkz. https://go.microsoft.com/fwlink/?linkid=848054.</target>
-        <note />
-      </trans-unit>
       <trans-unit id="FailedToDetermineUserHomeDirectory">
         <source>The user's home directory could not be determined. Set the '{0}' environment variable to specify the directory to use.</source>
         <target state="translated">Kullanıcının giriş dizini belirlenemedi. Kullanılacak dizini belirtmek için '{0}' ortam değişkenini ayarlayın.</target>
         <note />
       </trans-unit>
-      <trans-unit id="ShortFirstTimeWelcomeMessage">
-        <source>Welcome to .NET Core!
+      <trans-unit id="FirstTimeMessageMoreInformation">
+        <source>----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate run 'dotnet dev-certs https --trust' (Windows and macOS only).
+Learn about HTTPS: https://aka.ms/dotnet-https
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------</source>
+        <target state="needs-review-translation">----------------
+Belgeleri inceleyin: https://aka.ms/dotnet-docs
+Sorunları bildirin ve kaynağı GitHub'da bulun: https://github.com/dotnet/core
+Yenilikleri öğrenin: https://aka.ms/dotnet-whats-new
+Yüklü HTTPS geliştirici sertifikası hakkında bilgi edinin: https://aka.ms/aspnet-core-https
+Kullanılabilen komutları görmek için 'dotnet --help' komutunu kullanın veya şu sayfayı ziyaret edin: https://aka.ms/dotnet-cli-docs
+İlk uygulamanızı yazın: https://aka.ms/first-net-core-app
+--------------------------------------------------------------------------------------</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="FirstTimeMessageWelcome">
+        <source>Welcome to .NET Core {0}!
 ---------------------
-GitHub: https://github.com/dotnet/core
-Docs: https://aka.ms/dotnet-docs
-HTTPS: https://aka.ms/aspnet-core-https</source>
-        <target state="new">Welcome to .NET Core!
+SDK Version: {1}</source>
+        <target state="new">Welcome to .NET Core {0}!
 ---------------------
-GitHub: https://github.com/dotnet/core
-Docs: https://aka.ms/dotnet-docs
-HTTPS: https://aka.ms/aspnet-core-https</target>
+SDK Version: {1}</target>
         <note />
       </trans-unit>
       <trans-unit id="TelemetryMessage">
@@ -75,16 +44,11 @@ HTTPS: https://aka.ms/aspnet-core-https</target>
 The .NET Core tools collect usage data in order to help us improve your experience. The data is anonymous. It is collected by Microsoft and shared with the community. You can opt-out of telemetry by setting the DOTNET_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true' using your favorite shell.
 
 Read more about .NET Core CLI Tools telemetry: https://aka.ms/dotnet-cli-telemetry</source>
-        <target state="new">Telemetry
----------
-The .NET Core tools collect usage data in order to help us improve your experience. The data is anonymous. It is collected by Microsoft and shared with the community. You can opt-out of telemetry by setting the DOTNET_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true' using your favorite shell.
+        <target state="translated">Telemetri
+----------
+.NET Core araçları, deneyiminizi geliştirmemize yardımcı olmak için kullanım verileri toplar. Veriler anonimdir. Veriler Microsoft tarafından toplanır ve toplulukla paylaşılır. Telemetriden çıkmak için dilediğiniz kabuğu kullanarak DOTNET_CLI_TELEMETRY_OPTOUT ortam değişkenini '1' veya 'true' olarak ayarlayabilirsiniz.
 
-Read more about .NET Core CLI Tools telemetry: https://aka.ms/dotnet-cli-telemetry</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="ShortTelemetryMessage">
-        <source>Telemetry statement: https://aka.ms/dotnet-cli-telemetry</source>
-        <target state="new">Telemetry statement: https://aka.ms/dotnet-cli-telemetry</target>
+.NET Core CLI Araçları telemetrisi hakkında daha fazla bilgi: https://aka.ms/dotnet-cli-telemetry</target>
         <note />
       </trans-unit>
     </body>
